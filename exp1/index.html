@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- Ceylan KÜTÜK 20926563 01.04.2013 -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+	<head>
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+		<title>Search on Twitter</title>
+
+		<!-- add to use JQuery library from google CDN network -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+
+		<script type="text/javascript"> </script> 
+		
+		<!-- CSS codes are here to shape the page  -->
+		<style>	    
+			body{
+				background-color:#00FFFF ;
+			}
+		
+			.tweet {
+				margin-left:70px;
+			}
+
+			.real_name {
+				margin-left:70px;
+			}
+		
+			.nick_name_and_date {
+				margin-left:70px;
+			}
+			
+			.tweet {
+				color:#FF0066;
+			}
+			
+			img {
+				float:left;
+			}
+			
+		</style>
+			
+		<!-- JavaScript codes are here to find tweets and refresh the page -->
+		<script type="text/javascript"> 
+	
+			<!-- finds tweets -->
+			var timer ;
+			var searched_value ;
+		
+			function process(){ 
+				$('#results').html('');
+				$("#no_tweet").hide();
+					
+				$.ajax({
+					url: 'http://search.twitter.com/search.json',
+					type: 'GET',
+					dataType: 'jsonp',
+					data:{q: searched_value},
+					
+					success: function(data){
+						var isEmpty = $.isEmptyObject(data.results);
+						if(isEmpty){
+							$("#no_tweet").text("No tweet!");
+							$("#no_tweet").show();
+						}
+						$.each(data.results, function(iteration, output){
+							$tweets = $(".output").first().clone();
+							$tweets.find('.photo').attr('src', output.profile_image_url);
+							$tweets.find('.real_name').text(output.from_user_name);
+							$tweets.find('.nick_name_and_date').text(" @ " + output.from_user + " (" + output.created_at + ")" );
+							$tweets.find('.tweet').text("   " + output.text);
+							$tweets.hide().appendTo('#results').delay(100).fadeIn();
+							if(iteration >= 4){
+								return false ;
+							}
+						});
+					}
+				});	
+			}
+			function take_word(){
+				searched_value = $("#txt").val();
+			}
+			
+			function find_tweet(){
+				clearInterval(timer);
+				take_word();
+				process();
+				timer = setInterval("process()",10000);
+			}
+		
+		</script>
+	</head>
+
+	<body>
+		<div class="output" >
+			<img class="photo" />
+			<b> <p class="real_name"></p> </b>
+			<i> <p class="nick_name_and_date"></p> </i>
+			<p class="tweet"></p><br>
+		</div>
+	
+		<!-- when the user press the search button, then "find_tweets" method is called -->
+		<p align="center">  <font color="000066" size="9"> <b> Search on Twitter </b>  </font> </p>
+		<input id='txt' type="text" name="search" />
+		<input type="submit" value="search" onclick="find_tweet();">
+		<div id="results"> </div><br>	
+		<div id="no_tweet"> </div>
+	</body>
+
+</html>
